@@ -14,6 +14,26 @@
                         <option value="openai" <?php selected(AICG_Settings_Handler::get_setting('api_service'), 'openai'); ?>>OpenAI ChatGPT</option>
                         <option value="anthropic" <?php selected(AICG_Settings_Handler::get_setting('api_service'), 'anthropic'); ?>>Anthropic Cloude 4</option>
                         <option value="deepseek" <?php selected(AICG_Settings_Handler::get_setting('api_service'), 'deepseek'); ?>>DeepSeek</option>
+                        <option value="openrouter" <?php selected(AICG_Settings_Handler::get_setting('api_service'), 'openrouter'); ?>>OpenRouter</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="openrouter_key">OpenRouter API Key</label></th>
+                <td>
+                    <input type="password" name="openrouter_key" id="openrouter_key" 
+                           value="<?php echo esc_attr(AICG_Settings_Handler::get_setting('openrouter_key')); ?>" 
+                           class="regular-text">
+                </td>
+            </tr>
+            <tr>
+                <th><label for="openrouter_model">Modello OpenRouter</label></th>
+                <td>
+                    <select name="openrouter_model" id="openrouter_model">
+                        <option value="mistralai/mistral-7b-instruct:free" <?php selected(AICG_Settings_Handler::get_setting('openrouter_model'), 'mistralai/mistral-7b-instruct:free'); ?>>Mistral 7B (Free)</option>
+                        <option value="anthropic/claude-3-haiku" <?php selected(AICG_Settings_Handler::get_setting('openrouter_model'), 'anthropic/claude-3-haiku'); ?>>Claude 3 Haiku</option>
+                        <option value="meta-llama/llama-3-70b-instruct" <?php selected(AICG_Settings_Handler::get_setting('openrouter_model'), 'meta-llama/llama-3-70b-instruct'); ?>>Llama 3 70B</option>
+                        <option value="openchat/openchat-7b:free" <?php selected(AICG_Settings_Handler::get_setting('openrouter_model'), 'openchat/openchat-7b:free'); ?>>OpenChat 7B (Free)</option>
                     </select>
                 </td>
             </tr>

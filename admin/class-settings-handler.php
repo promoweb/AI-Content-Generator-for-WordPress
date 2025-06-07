@@ -33,6 +33,8 @@ class AICG_Settings_Handler {
             'openai_key' => sanitize_text_field($_POST['openai_key']),
             'anthropic_key' => sanitize_text_field($_POST['anthropic_key']),
             'deepseek_key' => sanitize_text_field($_POST['deepseek_key']),
+            'openrouter_key' => sanitize_text_field($_POST['openrouter_key']),
+            'openrouter_model' => sanitize_text_field($_POST['openrouter_model']),
             'default_instructions' => sanitize_textarea_field($_POST['default_instructions'])
         ];
         

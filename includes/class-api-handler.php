@@ -98,11 +98,36 @@ class AICG_API_Handler {
         return self::make_api_request($endpoint, $api_key, $body);
     }
     
+    private static function generate_openrouter_content($title, $instructions, $api_key, $model = 'mistralai/mistral-7b-instruct:free') {
+        $endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+        
+        $messages = [
+            [
+                'role' => 'system',
+                'content' => "Sei un esperto copywriter. Scrivi un articolo ben strutturato in HTML basandoti sul titolo e le istruzioni fornite."
+            ],
+            [
+                'role' => 'user',
+                'content' => "Titolo: $title\nIstruzioni: $instructions"
+            ]
+        ];
+        
+        $body = [
+            'model' => $model,
+            'messages' => $messages,
+            'temperature' => 0.7,
+            'max_tokens' => 2000
+        ];
+        
+        return self::make_api_request($endpoint, $api_key, $body);
+    }
+    
     private static function make_api_request($endpoint, $api_key, $body) {
         $args = [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $api_key
+                'Authorization' => 'Bearer ' . $api_key,
+                'HTTP-Referer' => get_site_url() // Richiesto da OpenRouter
             ],
             'body' => json_encode($body),
             'timeout' => 30

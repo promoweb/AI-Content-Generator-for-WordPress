@@ -46,7 +46,12 @@ class AICG_Content_Generator {
             $title = trim($title);
             if (empty($title)) continue;
             
-            $content = AICG_API_Handler::generate_content($title, $instructions, $service, $api_key);
+            if ($service === 'openrouter') {
+                $model = $settings['openrouter_model'] ?? 'mistralai/mistral-7b-instruct:free';
+                $content = AICG_API_Handler::generate_content($title, $instructions, $service, $api_key, $model);
+            } else {
+                $content = AICG_API_Handler::generate_content($title, $instructions, $service, $api_key);
+            }
             
             if (is_wp_error($content)) {
                 $results[] = [
