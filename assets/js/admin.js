@@ -1,10 +1,12 @@
 jQuery(document).ready(function($) {
     // Funzione per popolare i modelli disponibili
     function populateModels(provider, apiKey) {
-        if (!apiKey) return;
+        if (!apiKey) {
+            $('#api_model').empty().append('<option value="">Inserisci la chiave API</option>');
+            return;
+        }
         
-        const modelSelect = $(`#${provider}_model`);
-        modelSelect.empty().append('<option value="">Caricamento modelli...</option>');
+        $('#api_model').empty().append('<option value="">Caricamento modelli...</option>');
         
         // Endpoint per i diversi provider
         const endpoints = {
@@ -22,31 +24,40 @@ jQuery(document).ready(function($) {
                 'Content-Type': 'application/json'
             },
             success: function(response) {
-                modelSelect.empty();
+                $('#api_model').empty();
                 
                 // Mappatura dei modelli per provider
-                const models = {
-                    'openai': response.data.map(model => ({
+                let models = [];
+                if (provider === 'openai') {
+                    models = response.data.map(model => ({
                         id: model.id,
                         name: model.id.replace('gpt-', 'GPT-').replace(/-(\d+)/, ' $1')
-                    })),
-                    'anthropic': response.models.map(model => ({
+                    }));
+                } else if (provider === 'anthropic') {
+                    models = response.models.map(model => ({
                         id: model.id,
                         name: model.name
-                    })),
-                    'deepseek': response.models.map(model => ({
+                    }));
+                } else if (provider === 'deepseek') {
+                    models = response.models.map(model => ({
                         id: model.id,
                         name: model.id.replace('deepseek-', '').replace(/-/g, ' ').toUpperCase()
-                    })),
-                    'openrouter': response.data.map(model => ({
+                    }));
+                } else if (provider === 'openrouter') {
+                    models = response.data.map(model => ({
                         id: model.id,
                         name: model.name
-                    }))
-                };
+                    }));
+                    // Aggiungi deepseek-r1-0528:free a OpenRouter
+                    models.push({
+                        id: 'deepseek-r1-0528:free',
+                        name: 'DeepSeek R1 0528 (Free)'
+                    });
+                }
                 
                 // Popola il dropdown
-                models[provider].forEach(model => {
-                    modelSelect.append(
+                models.forEach(model => {
+                    $('#api_model').append(
                         $('<option></option>')
                             .attr('value', model.id)
                             .text(model.name)
@@ -54,13 +65,13 @@ jQuery(document).ready(function($) {
                 });
                 
                 // Seleziona il modello salvato se presente
-                const savedModel = modelSelect.data('saved');
+                const savedModel = $('#api_model').data('saved');
                 if (savedModel) {
-                    modelSelect.val(savedModel);
+                    $('#api_model').val(savedModel);
                 }
             },
             error: function() {
-                modelSelect.empty().append('<option value="">Errore nel caricamento</option>');
+                $('#api_model').empty().append('<option value="">Errore nel caricamento</option>');
             }
         });
     }
@@ -69,30 +80,24 @@ jQuery(document).ready(function($) {
     $('#api_service').on('change', function() {
         const service = $(this).val();
         
-        // Mostra/nascondi campi in base al provider
-        $('.api-key-field, .model-field').hide();
+        // Mostra/nascondi campi chiave API
+        $('.api-key-field').hide();
         $(`#${service}_key`).closest('tr').show();
-        $(`#${service}_model`).closest('tr').show();
         
         // Carica modelli se la chiave è presente
         const apiKey = $(`#${service}_key`).val();
-        if (apiKey) {
-            populateModels(service, apiKey);
-        }
+        populateModels(service, apiKey);
     });
     
     // Gestione modifica chiavi API
     $('input[id$="_key"]').on('input', function() {
-        const provider = this.id.replace('_key', '');
-        if ($('#api_service').val() === provider) {
-            populateModels(provider, $(this).val());
-        }
+        const provider = $('#api_service').val();
+        const apiKey = $(this).val();
+        populateModels(provider, apiKey);
     });
     
-    // Imposta i modelli salvati come data attribute
-    $('select[id$="_model"]').each(function() {
-        $(this).data('saved', $(this).val());
-    });
+    // Imposta il modello salvato come data attribute
+    $('#api_model').data('saved', $('#api_model').val());
     
     // Inizializza lo stato dei campi
     $('#api_service').trigger('change');
@@ -108,7 +113,7 @@ jQuery(document).ready(function($) {
         const category = $('#category').val();
         const instructions = $('#instructions').val();
         const api_service = $('#api_service').val();
-        const api_model = $(`#${api_service}_model`).val();
+        const api_model = $('#api_model').val();
         
         // Verifica dati obbligatori
         if (titles.length === 0) {
