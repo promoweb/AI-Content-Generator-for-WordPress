@@ -1,17 +1,47 @@
 jQuery(document).ready(function($) {
+    // Modelli predefiniti per ogni provider
+    const predefinedModels = {
+        'openai': [
+            { id: 'gpt-4o', name: 'GPT-4o' },
+            { id: 'gpt-4o-mini', name: 'GPT-4o Mini' },
+            { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
+            { id: 'gpt-4', name: 'GPT-4' },
+            { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' }
+        ],
+        'anthropic': [
+            { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' },
+            { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus' },
+            { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet' },
+            { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku' }
+        ],
+        'deepseek': [
+            { id: 'deepseek-chat', name: 'DeepSeek Chat' },
+            { id: 'deepseek-coder', name: 'DeepSeek Coder' }
+        ],
+        'openrouter': [
+            { id: 'openai/gpt-4o', name: 'GPT-4o (OpenRouter)' },
+            { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet (OpenRouter)' },
+            { id: 'deepseek/deepseek-chat', name: 'DeepSeek Chat (OpenRouter)' },
+            { id: 'deepseek/deepseek-r1', name: 'DeepSeek R1 (OpenRouter)' },
+            { id: 'meta-llama/llama-3.2-90b-vision-instruct', name: 'Llama 3.2 90B Vision' }
+        ]
+    };
+
     // Funzione per popolare i modelli disponibili
     function populateModels(provider, apiKey) {
+        console.log('Populating models for provider:', provider, 'API Key present:', !!apiKey);
+        
         if (!apiKey) {
             $('#api_model').empty().append('<option value="">Inserisci la chiave API</option>');
             return;
         }
         
-        // Verifica se abbiamo modelli pre-caricati per questo provider
-        if (aicgData.preloaded_models[provider]) {
+        // Usa i modelli predefiniti
+        if (predefinedModels[provider]) {
             $('#api_model').empty();
             
-            // Popola il dropdown con i modelli pre-caricati
-            aicgData.preloaded_models[provider].forEach(model => {
+            // Popola il dropdown con i modelli predefiniti
+            predefinedModels[provider].forEach(model => {
                 $('#api_model').append(
                     $('<option></option>')
                         .attr('value', model.id)
@@ -19,24 +49,27 @@ jQuery(document).ready(function($) {
                 );
             });
             
+            console.log('Loaded', predefinedModels[provider].length, 'models for', provider);
+            
             // Seleziona il modello salvato se presente
             const savedModel = $('#api_model').data('saved');
             if (savedModel) {
                 $('#api_model').val(savedModel);
+                console.log('Selected saved model:', savedModel);
             }
         } else {
-            // Mostra messaggio se non ci sono modelli pre-caricati
-            $('#api_model').empty().append('<option value="">Nessun modello disponibile</option>');
+            $('#api_model').empty().append('<option value="">Provider non supportato</option>');
         }
     }
     
     // Gestione cambio servizio API
     $('#api_service').on('change', function() {
         const service = $(this).val();
+        console.log('Service changed to:', service);
         
         // Mostra/nascondi campi chiave API
         $('.api-key-field').hide();
-        $(`#${service}_key`).closest('tr').show();
+        $(`.${service}-key`).show();
         
         // Carica modelli se la chiave è presente
         const apiKey = $(`#${service}_key`).val();
@@ -50,18 +83,22 @@ jQuery(document).ready(function($) {
         populateModels(provider, apiKey);
     });
     
-    // Imposta il modello salvato
-    const savedModel = '<?php echo esc_js(AICG_Settings_Handler::get_setting("api_model")); ?>';
-    if (savedModel) {
-        $('#api_model').data('saved', savedModel);
-    }
-    
-    // Carica modelli al caricamento della pagina se esiste una chiave API
-    const initialService = $('#api_service').val();
-    const initialApiKey = $(`#${initialService}_key`).val();
-    if (initialApiKey) {
-        populateModels(initialService, initialApiKey);
-    }
+    // Carica modelli al caricamento della pagina
+    $(document).ready(function() {
+        const initialService = $('#api_service').val();
+        console.log('Initial service:', initialService);
+        
+        // Mostra solo il campo API key del servizio selezionato
+        $('.api-key-field').hide();
+        $(`.${initialService}-key`).show();
+        
+        const initialApiKey = $(`#${initialService}_key`).val();
+        if (initialApiKey) {
+            populateModels(initialService, initialApiKey);
+        } else {
+            console.log('No API key found for', initialService);
+        }
+    });
     
     // Codice esistente per la generazione articoli
     $('#aicg-generate-btn').on('click', function() {

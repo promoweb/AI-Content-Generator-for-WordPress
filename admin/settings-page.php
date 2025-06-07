@@ -18,7 +18,7 @@
                     </select>
                 </td>
             </tr>
-            <tr>
+            <tr class="api-key-field openrouter-key">
                 <th><label for="openrouter_key">OpenRouter API Key</label></th>
                 <td>
                     <input type="password" name="openrouter_key" id="openrouter_key" 
@@ -26,7 +26,7 @@
                            class="regular-text">
                 </td>
             </tr>
-            <tr>
+            <tr class="api-key-field openai-key">
                 <th><label for="openai_key">OpenAI API Key</label></th>
                 <td>
                     <input type="password" name="openai_key" id="openai_key" 
@@ -34,7 +34,7 @@
                            class="regular-text">
                 </td>
             </tr>
-            <tr>
+            <tr class="api-key-field anthropic-key">
                 <th><label for="anthropic_key">Anthropic API Key</label></th>
                 <td>
                     <input type="password" name="anthropic_key" id="anthropic_key" 
@@ -42,7 +42,7 @@
                            class="regular-text">
                 </td>
             </tr>
-            <tr>
+            <tr class="api-key-field deepseek-key">
                 <th><label for="deepseek_key">DeepSeek API Key</label></th>
                 <td>
                     <input type="password" name="deepseek_key" id="deepseek_key" 
@@ -102,28 +102,10 @@
     </div>
 </div>
 
-<?php
-// Preload models for all providers with API keys
-$preloaded_models = [];
-$providers = ['openai', 'anthropic', 'deepseek', 'openrouter'];
-$settings = get_option(AICG_Settings_Handler::OPTION_NAME, []);
-
-foreach ($providers as $provider) {
-    $api_key = $settings[$provider.'_key'] ?? '';
-    if ($api_key) {
-        $models = AICG_API_Handler::get_models($provider, $api_key);
-        if (!is_wp_error($models)) {
-            $preloaded_models[$provider] = $models;
-        }
-    }
-}
-?>
-
 <script>
-    // Preloaded models data
+    // AJAX data for JavaScript
     var aicgData = {
         ajax_url: '<?php echo admin_url('admin-ajax.php'); ?>',
-        nonce: '<?php echo wp_create_nonce('aicg-ajax-nonce'); ?>',
-        preloaded_models: <?php echo json_encode($preloaded_models); ?>
+        nonce: '<?php echo wp_create_nonce('aicg-ajax-nonce'); ?>'
     };
 </script>
