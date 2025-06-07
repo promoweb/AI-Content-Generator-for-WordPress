@@ -6,61 +6,28 @@ jQuery(document).ready(function($) {
             return;
         }
         
-        $('#api_model').empty().append('<option value="">Caricamento modelli...</option>');
-        
-        // Endpoint per i diversi provider
-        const endpoints = {
-            'openai': 'https://api.openai.com/v1/models',
-            'anthropic': 'https://api.anthropic.com/v1/models',
-            'deepseek': 'https://api.deepseek.com/v1/models',
-            'openrouter': 'https://openrouter.ai/api/v1/models'
-        };
-        
-        console.log(`Initiating model fetch for ${provider} with key: ${apiKey.substring(0, 5)}...`);
-        
-        $.ajax({
-            url: aicgData.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'aicg_get_models',
-                provider: provider,
-                api_key: apiKey
-            },
-            success: function(response) {
-                console.log('AJAX success response:', response);
-                
-                if (response.success) {
-                    console.log(`Received ${response.data.length} models for ${provider}`);
-                    $('#api_model').empty();
-                    
-                    // Popola il dropdown con i modelli
-                    response.data.forEach(model => {
-                        $('#api_model').append(
-                            $('<option></option>')
-                                .attr('value', model.id)
-                                .text(model.name)
-                        );
-                    });
-                    
-                    // Seleziona il modello salvato se presente
-                    const savedModel = $('#api_model').data('saved');
-                    if (savedModel) {
-                        $('#api_model').val(savedModel);
-                    }
-                } else {
-                    console.error('Error loading models:', response.data);
-                    $('#api_model').empty().append('<option value="">Errore nel caricamento</option>');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX error:', {
-                    status: status,
-                    error: error,
-                    response: xhr.responseText
-                });
-                $('#api_model').empty().append('<option value="">Errore nel caricamento</option>');
+        // Verifica se abbiamo modelli pre-caricati per questo provider
+        if (aicgData.preloaded_models[provider]) {
+            $('#api_model').empty();
+            
+            // Popola il dropdown con i modelli pre-caricati
+            aicgData.preloaded_models[provider].forEach(model => {
+                $('#api_model').append(
+                    $('<option></option>')
+                        .attr('value', model.id)
+                        .text(model.name)
+                );
+            });
+            
+            // Seleziona il modello salvato se presente
+            const savedModel = $('#api_model').data('saved');
+            if (savedModel) {
+                $('#api_model').val(savedModel);
             }
-        });
+        } else {
+            // Mostra messaggio se non ci sono modelli pre-caricati
+            $('#api_model').empty().append('<option value="">Nessun modello disponibile</option>');
+        }
     }
     
     // Gestione cambio servizio API

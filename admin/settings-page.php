@@ -102,10 +102,28 @@
     </div>
 </div>
 
+<?php
+// Preload models for all providers with API keys
+$preloaded_models = [];
+$providers = ['openai', 'anthropic', 'deepseek', 'openrouter'];
+$settings = get_option(AICG_Settings_Handler::OPTION_NAME, []);
+
+foreach ($providers as $provider) {
+    $api_key = $settings[$provider.'_key'] ?? '';
+    if ($api_key) {
+        $models = AICG_API_Handler::get_models($provider, $api_key);
+        if (!is_wp_error($models)) {
+            $preloaded_models[$provider] = $models;
+        }
+    }
+}
+?>
+
 <script>
-    // Localize AJAX URL and nonce for JavaScript
+    // Preloaded models data
     var aicgData = {
         ajax_url: '<?php echo admin_url('admin-ajax.php'); ?>',
-        nonce: '<?php echo wp_create_nonce('aicg-ajax-nonce'); ?>'
+        nonce: '<?php echo wp_create_nonce('aicg-ajax-nonce'); ?>',
+        preloaded_models: <?php echo json_encode($preloaded_models); ?>
     };
 </script>
