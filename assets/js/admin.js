@@ -96,11 +96,18 @@ jQuery(document).ready(function($) {
         populateModels(provider, apiKey);
     });
     
-    // Imposta il modello salvato come data attribute
-    $('#api_model').data('saved', $('#api_model').val());
+    // Imposta il modello salvato
+    const savedModel = '<?php echo esc_js(AICG_Settings_Handler::get_setting("api_model")); ?>';
+    if (savedModel) {
+        $('#api_model').data('saved', savedModel);
+    }
     
-    // Inizializza lo stato dei campi
-    $('#api_service').trigger('change');
+    // Carica modelli al caricamento della pagina se esiste una chiave API
+    const initialService = $('#api_service').val();
+    const initialApiKey = $(`#${initialService}_key`).val();
+    if (initialApiKey) {
+        populateModels(initialService, initialApiKey);
+    }
     
     // Codice esistente per la generazione articoli
     $('#aicg-generate-btn').on('click', function() {

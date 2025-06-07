@@ -27,12 +27,6 @@
                 </td>
             </tr>
             <tr>
-                <th><label for="api_model">Modello</label></th>
-                <td>
-                    <select name="api_model" id="api_model"></select>
-                </td>
-            </tr>
-            <tr>
                 <th><label for="openai_key">OpenAI API Key</label></th>
                 <td>
                     <input type="password" name="openai_key" id="openai_key" 
@@ -54,6 +48,12 @@
                     <input type="password" name="deepseek_key" id="deepseek_key" 
                            value="<?php echo esc_attr(AICG_Settings_Handler::get_setting('deepseek_key')); ?>" 
                            class="regular-text">
+                </td>
+            </tr>
+            <tr>
+                <th><label for="api_model">Modello</label></th>
+                <td>
+                    <select name="api_model" id="api_model"></select>
                 </td>
             </tr>
         </table>

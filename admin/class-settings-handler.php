@@ -34,11 +34,15 @@ class AICG_Settings_Handler {
             'anthropic_key' => sanitize_text_field($_POST['anthropic_key']),
             'deepseek_key' => sanitize_text_field($_POST['deepseek_key']),
             'openrouter_key' => sanitize_text_field($_POST['openrouter_key']),
-            'openrouter_model' => sanitize_text_field($_POST['openrouter_model']),
+            'api_model' => sanitize_text_field($_POST['api_model']),
             'default_instructions' => sanitize_textarea_field($_POST['default_instructions'])
         ];
         
         update_option(self::OPTION_NAME, $settings);
+        
+        // Reindirizza con messaggio di successo
+        wp_redirect(admin_url('admin.php?page=aicg-settings&settings-updated=true'));
+        exit;
     }
     
     public static function handle_article_generation() {
