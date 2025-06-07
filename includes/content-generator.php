@@ -88,7 +88,17 @@ function aicg_ajax_get_models() {
     $provider = sanitize_text_field($_POST['provider']);
     $api_key = sanitize_text_field($_POST['api_key']);
     
+    // Debug logging
+    error_log("Received model fetch request for provider: $provider");
+    
     $models = AICG_API_Handler::get_models($provider, $api_key);
+    
+    // Debug logging
+    if (is_wp_error($models)) {
+        error_log("Model fetch error: " . $models->get_error_message());
+    } else {
+        error_log("Successfully fetched " . count($models) . " models");
+    }
     
     if (is_wp_error($models)) {
         wp_send_json_error($models->get_error_message());

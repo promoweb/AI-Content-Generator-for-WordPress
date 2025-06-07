@@ -16,6 +16,8 @@ jQuery(document).ready(function($) {
             'openrouter': 'https://openrouter.ai/api/v1/models'
         };
         
+        console.log(`Initiating model fetch for ${provider} with key: ${apiKey.substring(0, 5)}...`);
+        
         $.ajax({
             url: aicgData.ajax_url,
             type: 'POST',
@@ -25,7 +27,10 @@ jQuery(document).ready(function($) {
                 api_key: apiKey
             },
             success: function(response) {
+                console.log('AJAX success response:', response);
+                
                 if (response.success) {
+                    console.log(`Received ${response.data.length} models for ${provider}`);
                     $('#api_model').empty();
                     
                     // Popola il dropdown con i modelli
@@ -43,12 +48,16 @@ jQuery(document).ready(function($) {
                         $('#api_model').val(savedModel);
                     }
                 } else {
-                    console.error('Errore nel caricamento modelli:', response.data);
+                    console.error('Error loading models:', response.data);
                     $('#api_model').empty().append('<option value="">Errore nel caricamento</option>');
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Errore AJAX:', status, error, xhr.responseText);
+                console.error('AJAX error:', {
+                    status: status,
+                    error: error,
+                    response: xhr.responseText
+                });
                 $('#api_model').empty().append('<option value="">Errore nel caricamento</option>');
             }
         });
