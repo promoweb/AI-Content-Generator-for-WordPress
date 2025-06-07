@@ -57,6 +57,7 @@ class AICG_Settings_Handler {
         $category_id = isset($_POST['category']) ? intval($_POST['category']) : 0;
         $instructions = isset($_POST['instructions']) ? sanitize_textarea_field($_POST['instructions']) : '';
         $service = isset($_POST['api_service']) ? sanitize_text_field($_POST['api_service']) : '';
+        $model = isset($_POST['api_model']) ? sanitize_text_field($_POST['api_model']) : '';
         
         if (empty($titles)) {
             wp_send_json_error('Nessun titolo fornito', 400);
@@ -70,8 +71,12 @@ class AICG_Settings_Handler {
             wp_send_json_error('Servizio non selezionato', 400);
         }
         
+        if (empty($model)) {
+            wp_send_json_error('Modello non selezionato', 400);
+        }
+        
         // Genera gli articoli
-        $results = AICG_Content_Generator::generate_articles($titles, $instructions, $category_id, $service);
+        $results = AICG_Content_Generator::generate_articles($titles, $instructions, $category_id, $service, $model);
         
         if (is_wp_error($results)) {
             wp_send_json_error($results->get_error_message(), 500);

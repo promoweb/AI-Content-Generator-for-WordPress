@@ -21,11 +21,11 @@ class AICG_Content_Generator {
         return $post_id;
     }
     
-    public static function generate_articles($titles, $instructions, $category_id, $service) {
+    public static function generate_articles($titles, $instructions, $category_id, $service, $model) {
         $settings = get_option(AICG_Settings_Handler::OPTION_NAME, []);
         $api_key = '';
         
-        // Ottieni la chiave API corretta in base al servizio
+        // Ottieni la chiave API in base al servizio
         switch ($service) {
             case 'openai':
                 $api_key = $settings['openai_key'];
@@ -35,6 +35,9 @@ class AICG_Content_Generator {
                 break;
             case 'deepseek':
                 $api_key = $settings['deepseek_key'];
+                break;
+            case 'openrouter':
+                $api_key = $settings['openrouter_key'];
                 break;
             default:
                 return new WP_Error('invalid_service', 'Servizio API non valido');
@@ -46,12 +49,7 @@ class AICG_Content_Generator {
             $title = trim($title);
             if (empty($title)) continue;
             
-            if ($service === 'openrouter') {
-                $model = $settings['openrouter_model'] ?? 'mistralai/mistral-7b-instruct:free';
-                $content = AICG_API_Handler::generate_content($title, $instructions, $service, $api_key, $model);
-            } else {
-                $content = AICG_API_Handler::generate_content($title, $instructions, $service, $api_key);
-            }
+            $content = AICG_API_Handler::generate_content($title, $instructions, $service, $api_key, $model);
             
             if (is_wp_error($content)) {
                 $results[] = [

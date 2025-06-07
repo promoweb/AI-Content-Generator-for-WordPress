@@ -1,4 +1,103 @@
 jQuery(document).ready(function($) {
+    // Funzione per popolare i modelli disponibili
+    function populateModels(provider, apiKey) {
+        if (!apiKey) return;
+        
+        const modelSelect = $(`#${provider}_model`);
+        modelSelect.empty().append('<option value="">Caricamento modelli...</option>');
+        
+        // Endpoint per i diversi provider
+        const endpoints = {
+            'openai': 'https://api.openai.com/v1/models',
+            'anthropic': 'https://api.anthropic.com/v1/models',
+            'deepseek': 'https://api.deepseek.com/v1/models',
+            'openrouter': 'https://openrouter.ai/api/v1/models'
+        };
+        
+        $.ajax({
+            url: endpoints[provider],
+            type: 'GET',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            success: function(response) {
+                modelSelect.empty();
+                
+                // Mappatura dei modelli per provider
+                const models = {
+                    'openai': response.data.map(model => ({
+                        id: model.id,
+                        name: model.id.replace('gpt-', 'GPT-').replace(/-(\d+)/, ' $1')
+                    })),
+                    'anthropic': response.models.map(model => ({
+                        id: model.id,
+                        name: model.name
+                    })),
+                    'deepseek': response.models.map(model => ({
+                        id: model.id,
+                        name: model.id.replace('deepseek-', '').replace(/-/g, ' ').toUpperCase()
+                    })),
+                    'openrouter': response.data.map(model => ({
+                        id: model.id,
+                        name: model.name
+                    }))
+                };
+                
+                // Popola il dropdown
+                models[provider].forEach(model => {
+                    modelSelect.append(
+                        $('<option></option>')
+                            .attr('value', model.id)
+                            .text(model.name)
+                    );
+                });
+                
+                // Seleziona il modello salvato se presente
+                const savedModel = modelSelect.data('saved');
+                if (savedModel) {
+                    modelSelect.val(savedModel);
+                }
+            },
+            error: function() {
+                modelSelect.empty().append('<option value="">Errore nel caricamento</option>');
+            }
+        });
+    }
+    
+    // Gestione cambio servizio API
+    $('#api_service').on('change', function() {
+        const service = $(this).val();
+        
+        // Mostra/nascondi campi in base al provider
+        $('.api-key-field, .model-field').hide();
+        $(`#${service}_key`).closest('tr').show();
+        $(`#${service}_model`).closest('tr').show();
+        
+        // Carica modelli se la chiave è presente
+        const apiKey = $(`#${service}_key`).val();
+        if (apiKey) {
+            populateModels(service, apiKey);
+        }
+    });
+    
+    // Gestione modifica chiavi API
+    $('input[id$="_key"]').on('input', function() {
+        const provider = this.id.replace('_key', '');
+        if ($('#api_service').val() === provider) {
+            populateModels(provider, $(this).val());
+        }
+    });
+    
+    // Imposta i modelli salvati come data attribute
+    $('select[id$="_model"]').each(function() {
+        $(this).data('saved', $(this).val());
+    });
+    
+    // Inizializza lo stato dei campi
+    $('#api_service').trigger('change');
+    
+    // Codice esistente per la generazione articoli
     $('#aicg-generate-btn').on('click', function() {
         // Mostra indicatore di progresso
         $('#aicg-progress').show();
@@ -9,6 +108,7 @@ jQuery(document).ready(function($) {
         const category = $('#category').val();
         const instructions = $('#instructions').val();
         const api_service = $('#api_service').val();
+        const api_model = $(`#${api_service}_model`).val();
         
         // Verifica dati obbligatori
         if (titles.length === 0) {
@@ -23,6 +123,12 @@ jQuery(document).ready(function($) {
             return;
         }
         
+        if (!api_model) {
+            alert('Seleziona un modello');
+            $('#aicg-progress').hide();
+            return;
+        }
+        
         // Invia richiesta AJAX
         $.ajax({
             url: aicgData.ajax_url,
@@ -33,7 +139,8 @@ jQuery(document).ready(function($) {
                 titles: titles,
                 category: category,
                 instructions: instructions,
-                api_service: api_service
+                api_service: api_service,
+                api_model: api_model
             },
             success: function(response) {
                 $('#aicg-progress').hide();

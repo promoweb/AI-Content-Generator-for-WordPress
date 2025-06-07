@@ -27,6 +27,34 @@
                 </td>
             </tr>
             <tr>
+                <th><label for="openai_model">Modello OpenAI</label></th>
+                <td>
+                    <select name="openai_model" id="openai_model">
+                        <option value="gpt-3.5-turbo" <?php selected(AICG_Settings_Handler::get_setting('openai_model'), 'gpt-3.5-turbo'); ?>>GPT-3.5 Turbo</option>
+                        <option value="gpt-4" <?php selected(AICG_Settings_Handler::get_setting('openai_model'), 'gpt-4'); ?>>GPT-4</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="anthropic_model">Modello Anthropic</label></th>
+                <td>
+                    <select name="anthropic_model" id="anthropic_model">
+                        <option value="claude-3-haiku" <?php selected(AICG_Settings_Handler::get_setting('anthropic_model'), 'claude-3-haiku'); ?>>Claude 3 Haiku</option>
+                        <option value="claude-3-sonnet" <?php selected(AICG_Settings_Handler::get_setting('anthropic_model'), 'claude-3-sonnet'); ?>>Claude 3 Sonnet</option>
+                        <option value="claude-3-opus" <?php selected(AICG_Settings_Handler::get_setting('anthropic_model'), 'claude-3-opus'); ?>>Claude 3 Opus</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="deepseek_model">Modello DeepSeek</label></th>
+                <td>
+                    <select name="deepseek_model" id="deepseek_model">
+                        <option value="deepseek-r1-0528" <?php selected(AICG_Settings_Handler::get_setting('deepseek_model'), 'deepseek-r1-0528'); ?>>DeepSeek R1 0528</option>
+                        <option value="deepseek-coder" <?php selected(AICG_Settings_Handler::get_setting('deepseek_model'), 'deepseek-coder'); ?>>DeepSeek Coder</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
                 <th><label for="openrouter_model">Modello OpenRouter</label></th>
                 <td>
                     <select name="openrouter_model" id="openrouter_model">

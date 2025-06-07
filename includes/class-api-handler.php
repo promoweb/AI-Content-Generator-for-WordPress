@@ -5,7 +5,7 @@ class AICG_API_Handler {
     const MAX_RETRIES = 3;
     const RETRY_DELAY = 2; // secondi
     
-    public static function generate_content($title, $instructions, $service, $api_key) {
+    public static function generate_content($title, $instructions, $service, $api_key, $model) {
         $method = 'generate_' . $service . '_content';
         
         if (!method_exists(__CLASS__, $method)) {
@@ -15,7 +15,7 @@ class AICG_API_Handler {
         $retry_count = 0;
         
         while ($retry_count <= self::MAX_RETRIES) {
-            $response = call_user_func([__CLASS__, $method], $title, $instructions, $api_key);
+            $response = call_user_func([__CLASS__, $method], $title, $instructions, $api_key, $model);
             
             if (!is_wp_error($response)) {
                 return $response;
@@ -28,7 +28,7 @@ class AICG_API_Handler {
         return $response;
     }
     
-    private static function generate_openai_content($title, $instructions, $api_key) {
+    private static function generate_openai_content($title, $instructions, $api_key, $model) {
         $endpoint = 'https://api.openai.com/v1/chat/completions';
         
         $messages = [
@@ -43,7 +43,7 @@ class AICG_API_Handler {
         ];
         
         $body = [
-            'model' => 'gpt-4-turbo',
+            'model' => $model,
             'messages' => $messages,
             'temperature' => 0.7,
             'max_tokens' => 2000
@@ -52,14 +52,14 @@ class AICG_API_Handler {
         return self::make_api_request($endpoint, $api_key, $body);
     }
     
-    private static function generate_anthropic_content($title, $instructions, $api_key) {
+    private static function generate_anthropic_content($title, $instructions, $api_key, $model) {
         $endpoint = 'https://api.anthropic.com/v1/messages';
         
         $prompt = "\n\nHuman: Scrivi un articolo ben strutturato in HTML basandoti su questo titolo e istruzioni:\n"
                 . "Titolo: $title\nIstruzioni: $instructions\n\nAssistant:";
         
         $body = [
-            'model' => 'claude-3-opus-20240229',
+            'model' => $model,
             'max_tokens' => 2000,
             'temperature' => 0.7,
             'system' => 'Sei un esperto copywriter.',
@@ -74,7 +74,7 @@ class AICG_API_Handler {
         return self::make_api_request($endpoint, $api_key, $body);
     }
     
-    private static function generate_deepseek_content($title, $instructions, $api_key) {
+    private static function generate_deepseek_content($title, $instructions, $api_key, $model) {
         $endpoint = 'https://api.deepseek.com/v1/chat/completions';
         
         $messages = [
@@ -89,7 +89,7 @@ class AICG_API_Handler {
         ];
         
         $body = [
-            'model' => 'deepseek-chat',
+            'model' => $model,
             'messages' => $messages,
             'temperature' => 0.7,
             'max_tokens' => 2000
@@ -98,7 +98,7 @@ class AICG_API_Handler {
         return self::make_api_request($endpoint, $api_key, $body);
     }
     
-    private static function generate_openrouter_content($title, $instructions, $api_key, $model = 'mistralai/mistral-7b-instruct:free') {
+    private static function generate_openrouter_content($title, $instructions, $api_key, $model) {
         $endpoint = 'https://openrouter.ai/api/v1/chat/completions';
         
         $messages = [
