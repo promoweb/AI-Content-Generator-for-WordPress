@@ -101,3 +101,11 @@
         <div id="aicg-results"></div>
     </div>
 </div>
+
+<script>
+    // Localize AJAX URL and nonce for JavaScript
+    var aicgData = {
+        ajax_url: '<?php echo admin_url('admin-ajax.php'); ?>',
+        nonce: '<?php echo wp_create_nonce('aicg-ajax-nonce'); ?>'
+    };
+</script>

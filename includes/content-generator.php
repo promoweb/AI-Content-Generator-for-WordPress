@@ -17,7 +17,6 @@ class AICG_Content_Generator {
         if (is_wp_error($post_id)) {
             return $post_id;
         }
-        
         return $post_id;
     }
     
@@ -79,5 +78,21 @@ class AICG_Content_Generator {
         }
         
         return $results;
+    }
+}
+
+// Handle model fetching via AJAX
+add_action('wp_ajax_aicg_get_models', 'aicg_ajax_get_models');
+function aicg_ajax_get_models() {
+    // Verify nonce?
+    $provider = sanitize_text_field($_POST['provider']);
+    $api_key = sanitize_text_field($_POST['api_key']);
+    
+    $models = AICG_API_Handler::get_models($provider, $api_key);
+    
+    if (is_wp_error($models)) {
+        wp_send_json_error($models->get_error_message());
+    } else {
+        wp_send_json_success($models);
     }
 }

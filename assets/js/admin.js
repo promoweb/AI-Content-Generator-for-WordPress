@@ -17,60 +17,38 @@ jQuery(document).ready(function($) {
         };
         
         $.ajax({
-            url: endpoints[provider],
-            type: 'GET',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
+            url: aicgData.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'aicg_get_models',
+                provider: provider,
+                api_key: apiKey
             },
             success: function(response) {
-                $('#api_model').empty();
-                
-                // Mappatura dei modelli per provider
-                let models = [];
-                if (provider === 'openai') {
-                    models = response.data.map(model => ({
-                        id: model.id,
-                        name: model.id.replace('gpt-', 'GPT-').replace(/-(\d+)/, ' $1')
-                    }));
-                } else if (provider === 'anthropic') {
-                    models = response.models.map(model => ({
-                        id: model.id,
-                        name: model.name
-                    }));
-                } else if (provider === 'deepseek') {
-                    models = response.models.map(model => ({
-                        id: model.id,
-                        name: model.id.replace('deepseek-', '').replace(/-/g, ' ').toUpperCase()
-                    }));
-                } else if (provider === 'openrouter') {
-                    models = response.data.map(model => ({
-                        id: model.id,
-                        name: model.name
-                    }));
-                    // Aggiungi deepseek-r1-0528:free a OpenRouter
-                    models.push({
-                        id: 'deepseek-r1-0528:free',
-                        name: 'DeepSeek R1 0528 (Free)'
+                if (response.success) {
+                    $('#api_model').empty();
+                    
+                    // Popola il dropdown con i modelli
+                    response.data.forEach(model => {
+                        $('#api_model').append(
+                            $('<option></option>')
+                                .attr('value', model.id)
+                                .text(model.name)
+                        );
                     });
-                }
-                
-                // Popola il dropdown
-                models.forEach(model => {
-                    $('#api_model').append(
-                        $('<option></option>')
-                            .attr('value', model.id)
-                            .text(model.name)
-                    );
-                });
-                
-                // Seleziona il modello salvato se presente
-                const savedModel = $('#api_model').data('saved');
-                if (savedModel) {
-                    $('#api_model').val(savedModel);
+                    
+                    // Seleziona il modello salvato se presente
+                    const savedModel = $('#api_model').data('saved');
+                    if (savedModel) {
+                        $('#api_model').val(savedModel);
+                    }
+                } else {
+                    console.error('Errore nel caricamento modelli:', response.data);
+                    $('#api_model').empty().append('<option value="">Errore nel caricamento</option>');
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error('Errore AJAX:', status, error, xhr.responseText);
                 $('#api_model').empty().append('<option value="">Errore nel caricamento</option>');
             }
         });
